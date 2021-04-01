@@ -1,13 +1,12 @@
 
-import React from 'react'
-import { Card, Typography, Grid, CardContent, CardHeader } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import React, {useEffect, useState} from 'react'
+import { Card, Typography, Grid, CardContent} from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
 import CountUp from 'react-countup'
-import AutorenewRoundedIcon from '@material-ui/icons/AutorenewRounded'
-import ClearIcon from '@material-ui/icons/Clear'
-import LocalHospitalIcon from '@material-ui/icons/LocalHospital'
-import DriveEtaIcon from '@material-ui/icons/DriveEta';
+import coinGecko from '../APIs/coinGecko' 
 
+
+//Component Styling
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
@@ -19,79 +18,98 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
     },
     card: {
-        margin: theme.spacing(5),
-        borderRadius: '10px',
-        borderBottom: '10px solid #e4e7e9'
+        margin: theme.spacing(3),
+        backgroundColor: '#05386B',
+        maxWidth: '250px',
+        textAlign: 'center',
+        borderBottom: '5px solid #EDF5E1',
+        borderTop: '5px solid #EDF5E1'
     },
 })) 
 
 export default function Cards() {
+    //Initialize styling
     const classes = useStyles()
 
-  return (
-    <div className={classes.root}>
-    <Grid container direction="row" justify="center" alignItems="center" >
-        <Grid item xs={12} md={3}>
-            <Card className={classes.card} elevation={20}>
-                <CardContent>
-                    <Typography color="textSecondary" gutterBottom>
-                        <AutorenewRoundedIcon /> Total Recalls     
-                    </Typography>
-                    <Typography variant="h5" component="h2" style={{color: '#88B04B'}}>
-                        <CountUp start={0} end={6798} duration={2.75} separator="," />
-                    </Typography>
-                    <Typography variant="body2" component="p">
-                        As of 15:44, 12th Feb 2020.
-                    </Typography>
-                </CardContent>
-            </Card>
-        </Grid>
-        <Grid item xs={12}  md={3}>
-            <Card className={classes.card} elevation={20}>
-                <CardContent>
-                    <Typography color="textSecondary" gutterBottom>
-                        <LocalHospitalIcon/> Total Injuries   
-                    </Typography>
-                    <Typography variant="h5" component="h2" style={{color: '#EFC050'}}>
-                        <CountUp start={0} end={356} duration={2.75} separator="," />
-                    </Typography>
-                    <Typography variant="body2" component="p">
-                        As of 15:44, 12th Feb 2020.
-                    </Typography>
-                </CardContent>
-            </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-            <Card className={classes.card} elevation={20}>
-                <CardContent>
-                    <Typography color="textSecondary" gutterBottom>
-                        <ClearIcon /> Total Fatailities
-                    </Typography>
-                    <Typography variant="h5" component="h2" style={{color: '#FF6F61'}}>
-                        <CountUp start={0} end={37} duration={2.75} separator="," />
-                    </Typography>
-                    <Typography variant="body2" component="p">
-                        As of 15:44, 12th Feb 2020.
-                    </Typography>
-                </CardContent>
-            </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-            <Card className={classes.card} elevation={20}>
-                <CardContent>
-                    <Typography color="textSecondary" gutterBottom>
-                        <DriveEtaIcon/> Top Recalled Model
-                    </Typography>
-                    <Typography variant="h5" component="h2" style={{color: '#9B2335'}}>
-                        Toyota Prius
-                    </Typography>
-                    <Typography variant="body2" component="p">
-                        As of 15:44, 12th Feb 2020.
-                    </Typography>
-                </CardContent>
-            </Card>
-        </Grid>
-    </Grid>
-    </div>
-  );
+    //Initialize state
+    const [globalData, setGlobalData] = useState(null)
+    const [isLoading, setIsLoading] = useState(true)
+
+    //Request data from API
+    useEffect(() => {
+        setIsLoading(true)
+        async function fetchData() {
+            const request = await coinGecko.get("/global")
+            console.log(request.data)
+            setGlobalData(request.data)
+            setIsLoading(false)
+        }
+        fetchData()
+    }, [])
+    
+    //Display component
+    const renderData = () => {
+        const updated = new Date(globalData.data.updated_at * 1000).toDateString()
+        return (
+            <div className={classes.root}>
+                <Grid container direction="row" justify="center" alignItems="center" >
+                    <Grid item xs={12} md={3}>
+                        <Card className={classes.card} elevation={20}>
+                            <CardContent>
+                                <Typography variant="h6" color="textPrimary" gutterBottom> 
+                                    Cryptocurrencies
+                                </Typography>
+                                <Typography variant="h6" component="h2" color="textSecondary">
+                                    <CountUp start={0} end={globalData.data.active_cryptocurrencies} duration={3} separator="," />
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12}  md={3}>
+                        <Card className={classes.card} elevation={20}>
+                            <CardContent>
+                                <Typography variant="h6" color="textPrimary" gutterBottom>
+                                    Active Markets  
+                                </Typography>
+                                <Typography variant="h6" component="h2" color="textSecondary">
+                                    <CountUp start={0} end={globalData.data.markets} duration={2.75} separator="," />
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                        <Card className={classes.card} elevation={20}>
+                            <CardContent>
+                                <Typography variant="h6" color="textPrimary" gutterBottom> 
+                                    Market Cap
+                                </Typography>
+                                <Typography variant="h6" component="h2" color="textSecondary">
+                                    {globalData.data.market_cap_change_percentage_24h_usd.toFixed(2)}%
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                        <Card className={classes.card} elevation={20}>
+                            <CardContent>
+                                <Typography variant="h6" color="textPrimary" gutterBottom>
+                                    Last Update
+                                </Typography>
+                                <Typography  variant="h6"  color="textSecondary" gutterBottom>
+                                    {updated}
+                                 </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+            </div>
+        )
+    }
+
+    //Render conditionally
+    if(isLoading) {
+        return <div>Loading...</div>
+    } else { 
+        return renderData()
+    }
 }

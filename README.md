@@ -1,4 +1,6 @@
-# Getting Started with Create React App
+# Crypto Tracker
+
+This project lets the user view visualized global cryptocurrency data as well as detailed data for top 30 cryptocurrencies.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
